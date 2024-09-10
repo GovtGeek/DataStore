@@ -1,8 +1,9 @@
 --[[
 Global Enumerations, used by other DataStore modules or client add-ons.
 --]]
-local C_Spell.GetSpellName = _G["C_Spell.GetSpellName"] or GetSpellInfo -- For 4.4.0 temporary compatibility
-
+if not C_Spell.GetSpellName then
+	C_Spell.GetSpellName = GetSpellInfo -- For 4.4.0 temporary compatibility
+end
 DataStore.Enum = {
 	BankTypes = {
 		Cooking = 1,
