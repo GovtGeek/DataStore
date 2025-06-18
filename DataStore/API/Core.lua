@@ -26,7 +26,9 @@ local modulesList = {
 if WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC then
 	-- Add cataclysm modules
 	modulesList["DataStore_Currencies"] = true
-
+elseif LE_EXPANSION_LEVEL_CURRENT == LE_EXPANSION_MISTS_OF_PANDARIA then
+	-- Add mists of pandaria modules
+	modulesList["DataStore_Currencies"] = true
 elseif WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
 	-- retail, add the remaining modules
 	modulesList["DataStore_Currencies"] = true
@@ -153,7 +155,7 @@ local unboundCount = 0
 
 function addon:RegisterMethod(moduleObject, methodName, method)
 	if registeredMethods[methodName] then
-		print(format("DataStore:RegisterMethod() : adding method for module <%s> failed.", moduleName))
+		print(format("DataStore:RegisterMethod() : adding method for module <%s> failed.", moduleName or "unknown"))
 		print(format("DataStore:RegisterMethod() : method <%s> already exists !", methodName))
 		return
 	end
@@ -188,7 +190,7 @@ function addon:RegisterModule(options)
 		local prefix = format("%sDataStore%s: ", teal, white)
 
 		print(format("%sError triggered by : %s%s", prefix, yellow, moduleName))
-		print("You are using an unauthorized DataStore module that breaches the licensing rights of DataStore's sole author (Thaoky, EU-Marécages de Zangar).")
+		print("You are using an unauthorized DataStore module that breaches the licensing rights of DataStore's sole author (Thaoky, EU-Marï¿½cages de Zangar).")
 		print("The development and distribution of unauthorized DataStore modules outside of the official Altoholic package is prohibited by the 'All Rights Reserved' licensing terms.")
 		print("|cFFFFFF00What you should do :")
 		print(format("Leave the game and clear all Altoholic* and DataStore* folders from the %sInterface\\Addons%s folder, and make a manual download of the latest version of Altoholic from one of the two official sources (Curseforge and WoW Interface).", cyan, white))
@@ -331,10 +333,74 @@ local function GetModuleTable(module)
 	return module
 end
 
+
+local sharedTables = {
+	DataStore = { 
+		-- "DataStore_GuildIDs", 
+		-- "DataStore_GuildFactions", 
+		-- "DataStore_CharacterIDs", 
+		"DataStore_CharacterGUIDs", 
+		-- "DataStore_CharacterGuilds", 
+		-- "DataStore_AltGroups", "DataStore_ConnectedRealms", "DataStore_RealmNames"
+	},
+	DataStore_Achievements = { "DataStore_Achievements_Characters"	},
+	DataStore_Auctions = { "DataStore_Auctions_Characters", "DataStore_Auctions_AuctionsList", "DataStore_Auctions_BidsList" },
+	DataStore_Characters = { "DataStore_Characters_Info" },
+	DataStore_Containers = { 
+		"DataStore_Containers_Characters", "DataStore_Containers_Banks", "DataStore_Containers_Guilds", "DataStore_Containers_Reagents", 
+		"DataStore_Containers_VoidStorage", "DataStore_Containers_Keystones", "DataStore_Containers_BankTypes"
+	},
+	DataStore_Crafts = { "DataStore_Crafts_Characters", "DataStore_Crafts_ArcheologyItems", "DataStore_Crafts_RecipeCategories" },
+	DataStore_Currencies = { 
+		"DataStore_Currencies_Characters", "DataStore_Currencies_Catalog", "DataStore_Currencies_Info", "DataStore_Currencies_Max",
+		"DataStore_Currencies_Headers", "DataStore_Currencies_Archeology"
+	},
+	DataStore_Garrisons = { 
+		"DataStore_Garrisons_Characters", "DataStore_Garrisons_Missions", "DataStore_Garrisons_MissionInfos", 
+		"DataStore_Garrisons_Followers", "DataStore_Garrisons_FollowerNamesToID", "DataStore_Garrisons_Buildings", 
+		"DataStore_Garrisons_CovenantSanctum", "DataStore_Garrisons_CypherEquipment",	"DataStore_Garrisons_Shipments"
+	},
+	DataStore_Inventory = { "DataStore_Inventory_Characters" },
+	DataStore_Mails = { "DataStore_Mails_Characters" },
+	DataStore_Quests = { "DataStore_Quests_Characters"
+		--, "DataStore_Quests_History", "DataStore_Quests_Progress", "DataStore_Quests_Dailies", "DataStore_Quests_Weeklies", "DataStore_Quests_Colors", "DataStore_Quests_Infos"
+	},
+	DataStore_Reputations = { "DataStore_Reputations_Characters" },
+	DataStore_Spells = { "DataStore_Spells_Characters", "DataStore_Spells_Tabs" },
+	DataStore_Stats = { "DataStore_Stats_Characters"
+		--, "DataStore_Stats_Weekly", "DataStore_Stats_Dungeons"
+	},
+	DataStore_Talents = { 
+		"DataStore_Talents_Characters", "DataStore_Talents_Specializations", "DataStore_Talents_SpecializationInfos", 
+		"DataStore_Talents_Covenant", "DataStore_Talents_Conduits", "DataStore_Talents_ConduitSpecs", 
+		"DataStore_Talents_Soulbinds", "DataStore_Talents_Reasons"
+	},
+}
+
 function addon:GetCharacterTable(module, name, realm, account)
-	module = GetModuleTable(module)
+	-- Can the module be shared?
+	if not sharedTables[module] then return {} end
 	
-	return module.Characters[GetKey(name, realm, account)]
+	local charTable = {}
+	local key = GetKey(name, realm, account)
+	local charID = addon:GetCharacterID(key)
+	
+	--	 Iterate tables in the current module
+	local moduleTables = sharedTables[module]
+	
+	for moduleIndex, tableName in ipairs(moduleTables) do
+		-- do we have data for this character in the current table ?
+		if _G[tableName][charID] then
+		
+			-- we do, link it		
+			charTable[module] = charTable[module] or {}
+			charTable[module][moduleIndex] = _G[tableName][charID]
+		end
+	end
+	
+	return charTable
+	-- return module.Characters[GetKey(name, realm, account)]
+	
 end
 
 function addon:GetModuleLastUpdate(module, name, realm, account)
