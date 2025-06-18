@@ -358,7 +358,6 @@ function addon:DeleteGuild(guildKey)
 
 	-- delete the guild in all modules
 	addon:IterateModules(function(moduleDB) 
-	
 		if moduleDB.Guilds then
 			moduleDB.Guilds[guildKey] = nil
 		end
