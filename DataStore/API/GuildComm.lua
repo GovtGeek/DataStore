@@ -277,4 +277,5 @@ function addon:GetNameOfMain(player)
 			end
 		end
 	end
+	return player
 end
