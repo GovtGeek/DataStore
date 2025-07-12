@@ -354,15 +354,17 @@ end
 function addon:DeleteGuild(guildKey)
 	if not allGuilds.Set[guildKey] then return end
 
+	addon:DeleteGuildBank(guildKey)
 	-- This needs review, might not be necessary anymore, we have DeleteGuildBank
 
+	--[[
 	-- delete the guild in all modules
 	addon:IterateModules(function(moduleDB) 
 		if moduleDB.Guilds then
 			moduleDB.Guilds[guildKey] = nil
 		end
 	end)
-
+	--]]
 	-- delete the key in DataStore
 	-- allGuilds.Set[guildKey] = nil
 	-- also delete in all tables !
