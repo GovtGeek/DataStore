@@ -351,22 +351,22 @@ function addon:DeleteCharacter(name, realm, account)
 	
 end
 
+-- This should probably go through the modules and call a "DeleteGuild" function if it exists
+-- That would make each module responsible for guild management
 function addon:DeleteGuild(guildKey)
 	if not allGuilds.Set[guildKey] then return end
 
 	addon:DeleteGuildBank(guildKey)
-	-- This needs review, might not be necessary anymore, we have DeleteGuildBank
 
-	--[[
 	-- delete the guild in all modules
-	addon:IterateModules(function(moduleDB) 
-		if moduleDB.Guilds then
+	addon:IterateModules(function(moduleDB)
+		-- I can't figure out where "Guilds" is being defined as a function in DataStore, but it causes an issue
+		if moduleDB.Guilds and type(moduleDB.Guilds) == "table" then
 			moduleDB.Guilds[guildKey] = nil
 		end
 	end)
-	--]]
 	-- delete the key in DataStore
-	-- allGuilds.Set[guildKey] = nil
+	allGuilds.Set[guildKey] = nil
 	-- also delete in all tables !
 end
 
