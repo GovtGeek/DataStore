@@ -49,6 +49,12 @@ DataStore.Enum = {
 
 local e = DataStore.Enum
 
+e.ExpansionPacks = {}
+for i=0, LE_EXPANSION_LEVEL_CURRENT, 1 do
+	table.insert(e.ExpansionPacks, _G["EXPANSION_NAME"..i])
+end
+
+--[[
 if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
 	-- classic era
 	e.ExpansionPacks = {
@@ -78,3 +84,4 @@ else
 		EXPANSION_NAME9, 	-- "Dragonflight"
 	}
 end
+--]]
