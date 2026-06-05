@@ -1,4 +1,4 @@
-## Interface: 120005, 50503, 20505, 11508
+## Interface: 120005, 50504, 20505, 11508
 ## Title: DataStore by |cFF69CCF0Thaoky|r
 ## IconTexture: Interface\Icons\garrison_building_storehouse
 
